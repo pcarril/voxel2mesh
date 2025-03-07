@@ -8,6 +8,7 @@ from IPython import embed
 from itertools import product, combinations
 
 def adjacency_matrix(vertices, faces):
+
     B, N, D = vertices.shape
 
     halfedges = torch.tensor(list(combinations(range(D), 2)))

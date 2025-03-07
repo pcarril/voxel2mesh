@@ -22,6 +22,8 @@ import os
 import h5py
 import sys
 import nibabel as nib
+import matplotlib.pyplot as plt
+
 from tqdm import tqdm
 
 
@@ -93,8 +95,8 @@ class Hippocampus(DatasetAndSupport):
                 x, y = self.read_sample(data_root, sample, down_sample_shape, largest_image_size)
                 inputs += [x.cpu()]
                 labels += [y.cpu()]
- 
-        
+
+
         inputs_ = [i[None].data.numpy() for i in inputs] 
         labels_ = [i[None].data.numpy() for i in labels]
         inputs_ = np.concatenate(inputs_, axis=0)
@@ -206,18 +208,13 @@ def dataset_init(data_root, multi_stack=None):
 
     count = 0
     for itr, sample in enumerate(tqdm(samples)):
-        if '.nii.gz' in sample and '._' not in sample and '.npy' not in sample and '.tif' not in sample:
+        if '.nii' in sample and '._' not in sample and '.npy' not in sample and '.tif' not in sample:
 
-            x = nib.load('{}/imagesTr/{}'.format(data_root, sample))
-            y = nib.load('{}/labelsTr/{}'.format(data_root, sample)).get_fdata() > 0
-            resolution = np.diag(x.header.get_sform())[:3]
-            x = x.get_fdata()
-            if multi_stack is not None:
-                x = x[:, :, :, multi_stack]
-            real_size = np.round(np.array(x.shape) * resolution)
-            
+            x = nib.load('{}/imagesTr/{}'.format(data_root, sample)).get_fdata()
+            y = nib.load('{}/labelsTr/{}'.format(data_root, sample)).get_fdata()
+
+            real_size = np.round(np.array(x.shape))
             file_name = sample
-
 
             x = torch.from_numpy(x).permute([2, 1, 0]).cuda().float()
             y = torch.from_numpy(y).permute([2, 1, 0]).cuda().float()
@@ -233,13 +230,11 @@ def dataset_init(data_root, multi_stack=None):
             base_grid[:, :, :, :, 2] = d_points
             grid = base_grid.cuda()
 
-
             x = F.grid_sample(x[None, None], grid, mode='bilinear', padding_mode='border')[0, 0].cpu().numpy()
             y = F.grid_sample(y[None, None], grid, mode='nearest', padding_mode='border')[0, 0].long().cpu().numpy()
 
-
-            x = (x - np.mean(x))/np.std(x) 
+            x = (x - np.mean(x)) / np.std(x)
             np.save('{}/imagesTr/p{}'.format(data_root, file_name), x)
             np.save('{}/labelsTr/p{}'.format(data_root, file_name), y)
 
-            count += 1 
+            count += 1

@@ -73,6 +73,8 @@ def shift(axes):
     theta[2, 3] = axes[2]
 
     return theta
+
+
 def transform(theta, x, y=None, w=None, w2=None):
     theta = theta[0:3, :].view(-1, 3, 4)
     grid = affine_3d_grid_generator.affine_grid(theta, x[None].shape)
@@ -80,16 +82,15 @@ def transform(theta, x, y=None, w=None, w2=None):
         grid = grid.cuda()
     x = F.grid_sample(x[None], grid, mode='bilinear', padding_mode='zeros', align_corners=True)[0]
     if y is not None:
-        y = F.grid_sample(y[None, None].float(), grid, mode='nearest', padding_mode='zeros', align_corners=True).long()[0, 0]
+        y = F.grid_sample(y[None, None].float(), grid, mode='nearest', padding_mode='zeros', align_corners=True).long()[
+            0, 0]
     else:
-        return x 
-    if w is not None: 
-        w = F.grid_sample(w[None, None].float(), grid, mode='nearest', padding_mode='zeros', align_corners=True).long()[0, 0] 
+        return x
+    if w is not None:
+        w = F.grid_sample(w[None, None].float(), grid, mode='nearest', padding_mode='zeros', align_corners=True).long()[
+            0, 0]
         return x, y, w
     else:
         return x, y
     # if w2 is not None:
-        # w2 = F.grid_sample(w2[None, None].float(), grid, mode='nearest', padding_mode='zeros').long()[0, 0]
-    
-
-
+    # w2 = F.grid_sample(w2[None, None].float(), grid, mode='nearest', padding_mode='zeros').long()[0, 0]

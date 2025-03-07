@@ -118,8 +118,7 @@ def crop(image, patch_shape, center, mode='constant'):
 
 
 def blend(img, labels, num_classes):
-    colors = torch.tensor([[0, 0, 0], [0, 255, 0], [255, 0, 0], [0, 0, 255], [255, 0, 255]]).cuda().float()
-
+    colors = torch.tensor([[0, 0, 0], [128, 174, 128], [177, 122, 101], [141, 93, 137], [51, 71, 200], [255, 0, 255], [0, 192, 0], [255, 117, 24], [40, 161, 174]]).float()
 
     img = img[..., None].repeat(1, 1, 1, 3)
     masks = torch.zeros_like(img)
@@ -130,8 +129,7 @@ def blend(img, labels, num_classes):
     return overlay
 
 def blend_cpu(img, labels, num_classes):
-    colors = torch.tensor([[0, 0, 0], [0, 255, 0], [255, 0, 0], [0, 0, 255], [255, 0, 255]]).float()
-
+    colors = torch.tensor([[0, 0, 0], [128, 174, 128], [177, 122, 101], [141, 93, 137], [51, 71, 200], [255, 0, 255], [0, 192, 0], [255, 117, 24], [40, 161, 174]]).float()
 
     img = img[..., None].repeat(1, 1, 1, 3)
     masks = torch.zeros_like(img)

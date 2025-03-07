@@ -16,7 +16,9 @@ from shutil import copytree, ignore_patterns
 import torch.optim as optim
 from torch.utils.data import DataLoader
 from utils.utils_common import DataModes
+
 import wandb
+
 from IPython import embed 
 from utils.utils_common import mkdir
 
@@ -51,8 +53,7 @@ def init(cfg):
     return trial_save_path, trial_id
 
 def main():
- 
-    
+
     exp_id = 3
 
     # Initialize
@@ -64,7 +65,6 @@ def main():
     print("Create network")
     classifier = network(cfg)
     classifier.cuda()
- 
 
     wandb.init(name='Experiment_{}/trial_{}'.format(cfg.experiment_idx, trial_id), project="vm-net", dir=trial_path)
  
@@ -74,32 +74,33 @@ def main():
     print("Load pre-processed data") 
     data_obj = cfg.data_obj 
     data = data_obj.quick_load_data(cfg, trial_id)
-    
+
     loader = DataLoader(data[DataModes.TRAINING], batch_size=classifier.config.batch_size, shuffle=True)
   
     print("Trainset length: {}".format(loader.__len__()))
 
     print("Initialize evaluator")
-    evaluator = Evaluator(classifier, optimizer, data, trial_path, cfg, data_obj) 
+    evaluator = Evaluator(classifier, optimizer, data, trial_path, cfg, data_obj)
+
 
     print("Initialize trainer")
     trainer = Trainer(classifier, loader, optimizer, cfg.numb_of_itrs, cfg.eval_every, trial_path, evaluator)
 
     if cfg.trial_id is not None:
         print("Loading pretrained network")
-        save_path = trial_path + '/best_performance/model.pth'
+        trial_path = 'C:\\Users\pcarril\\PycharmProjects\\voxel2mesh_MRI_003\\trial_30'
+        save_path = trial_path + '/best_performance3/model.pth'
         checkpoint = torch.load(save_path)
         classifier.load_state_dict(checkpoint['model_state_dict'])
         optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
         epoch = checkpoint['epoch']
     else:
-        epoch = 0
+       epoch = 0
 
-
-    trainer.train(start_iteration=epoch) 
+    trainer.train(start_iteration=epoch)
 
     # To evaluate a pretrained model, uncomment line below and comment the line above
-    # evaluator.evaluate(epoch)
+    #evaluator.evaluate(epoch)
 
 if __name__ == "__main__": 
     main()

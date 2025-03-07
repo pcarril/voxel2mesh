@@ -101,9 +101,9 @@ class Chaos():
             if 'pickle' not in sample:
                 print('.', end='', flush=True)
                 x = [] 
-                images_path = [dir for dir in os.listdir('{}/{}/DICOM_anon'.format(data_root, sample)) if 'dcm' in dir]
+                images_path = [dir for dir in os.listdir('{}/{}/Data/'.format(data_root, sample)) if 'dcm' in dir]
                 for image_path in images_path:
-                    file = pydicom.dcmread('{}/{}/DICOM_anon/{}'.format(data_root, sample, image_path))
+                    file = pydicom.dcmread('{}/{}/Data/{}'.format(data_root, sample, image_path))
                     x += [file.pixel_array] 
 
                 d_resolution = file.SliceThickness
@@ -149,8 +149,8 @@ class Chaos():
                 #----
  
                 y = [] 
-                images_path = [dir for dir in os.listdir('{}/{}/Ground'.format(data_root, sample)) if 'png' in dir]
-                for image_path in images_path:
+                images_path2 = [dir for dir in os.listdir('{}/{}/Ground'.format(data_root, sample)) if 'png' in dir]
+                for image_path in images_path2:
                     file = io.imread('{}/{}/Ground/{}'.format(data_root, sample, image_path))
                     y += [file]  
                  
@@ -161,14 +161,17 @@ class Chaos():
                 y = F.grid_sample(y[None, None].float(), grid, mode='nearest', padding_mode='border', align_corners=True)[0, 0]
                 y = y.data.cpu().numpy()
 
-                 
-               
                 y = np.int64(y)
-                y = crop(y, (D, H, W), (center_z, center_y, center_x))  
-                  
+                y = crop(y, (D, H, W), (center_z, center_y, center_x))
+
                  
-                y = torch.from_numpy(y/255) 
-                  
+                #y = torch.from_numpy(y/255)
+                y = torch.from_numpy(y).long()  # Keep labels as integers
+
+                print("Processed Label Shape:", y.shape)
+                print("Processed Label Min:", y.min(), "Max:", y.max())
+                print("Unique Values in Label:", np.unique(y))
+
                 labels += [y]
 
         print('\nSaving pre-processed data to disk')

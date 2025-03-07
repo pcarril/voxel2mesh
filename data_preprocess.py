@@ -10,7 +10,7 @@ import numpy as np
 from train import Trainer
 from evaluate import Evaluator  
 from data.chaos import Chaos
-from data.hippocampus import Hippocampus
+# from data.hippocampus import Hippocampus
 
 from shutil import copytree, ignore_patterns
 import torch.optim as optim

@@ -22,9 +22,10 @@ def uniform_unpool(vertices_, faces_, identical_face_batch=True):
         unique_edges = edges.view(-1, 2)
         unique_edges, _ = torch.sort(unique_edges, dim=1)
         unique_edges, unique_edge_indices = torch.unique(unique_edges, return_inverse=True, dim=0)
+        unique_edges = unique_edges.clamp(min=0, max=vertices.shape[0] - 1)
         face_edges = vertices[unique_edges]
 
-        ''' Computer new vertices '''
+        ''' Compute new vertices '''
         new_vertices = torch.mean(face_edges, dim=1)
         new_vertices = torch.cat([vertices, new_vertices], dim=0)  # <----------------------- new vertices + old vertices
         new_vertices_all += [new_vertices[None]]
@@ -95,11 +96,11 @@ def adoptive_unpool(vertices, faces_prev, sphere_vertices, latent_features, N_pr
     dist[cond2 < 0] = norm2[cond2 < 0]
 
     sorted_, _ = torch.sort(dist)
-    threshold = sorted_[int(0.3*len(sorted_))] 
+    threshold = sorted_[int(0.3*len(sorted_))]
 
     vertices_needed = vertices_secondary[dist > threshold]
-    
-    sphere_vertices_needed = sphere_vertices_secondary[dist > threshold] 
+
+    sphere_vertices_needed = sphere_vertices_secondary[dist > threshold]
     if latent_features is not None:
         latent_features_needed = latent_features_secondary[dist > threshold]
 
