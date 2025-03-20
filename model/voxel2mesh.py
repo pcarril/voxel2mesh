@@ -108,11 +108,15 @@ class Voxel2Mesh(nn.Module):
         self.sphere_vertices = sphere_vertices / torch.sqrt(torch.sum(sphere_vertices ** 2, dim=1)[:, None])[None]
         self.sphere_faces = torch.from_numpy(sphere_faces).cuda().long()[None]
 
-
     def forward(self, data):
 
         x = data['x']
         unpool_indices = data['unpool']
+
+        sphere_vertices = self.sphere_vertices.clone()
+        vertices = sphere_vertices.clone()
+        faces = self.sphere_faces.clone()
+        batch_size = self.config.batch_size
 
         # first layer
         x = self.down_layers[0](x)
@@ -124,14 +128,10 @@ class Voxel2Mesh(nn.Module):
             x = unet_layer(x)
             down_outputs.append(x)
 
-        pred = [None] * (self.config.num_classes-1)
-
-        for k in range(self.config.num_classes-1):
-            # Create completely separate tensors for each class with detached gradients
-            class_vertices = self.sphere_vertices.clone().detach()
-            class_faces = self.sphere_faces.clone().detach()
-            class_sphere_vertices = self.sphere_vertices.clone().detach()
-            pred[k] = [[class_vertices, class_faces, None, None, class_sphere_vertices]]
+        A, D = adjacency_matrix(vertices, faces)
+        pred = [None] * self.config.num_classes
+        for k in range(self.config.num_classes - 1):
+            pred[k] = [[vertices.clone(), faces.clone(), None, None, sphere_vertices.clone()]]
 
         for i, (
         (skip_connection, grid_upconv_layer, grid_unet_layer), up_f2f_layers, up_f2v_layers, down_output, skip_amount,
@@ -144,8 +144,7 @@ class Voxel2Mesh(nn.Module):
             elif grid_upconv_layer is None:
                 x = down_output
 
-
-            for k in range(self.config.num_classes-1):
+            for k in range(self.config.num_classes - 1):
 
                 # load mesh information from previous iteratioin for class k
                 vertices = pred[k][i][0]
@@ -156,7 +155,6 @@ class Voxel2Mesh(nn.Module):
                 feature2vertex = up_f2v_layers[k]
 
                 if do_unpool[0] == 1:
-
                     faces_prev = faces
                     _, N_prev, _ = vertices.shape
 
@@ -189,16 +187,13 @@ class Voxel2Mesh(nn.Module):
 
         return pred
 
-
     def loss(self, data, epoch):
 
         pred = self.forward(data)
         # embed()
 
         CE_Loss = nn.CrossEntropyLoss()
-        ce_loss = torch.tensor(0).float().cuda()
-        for c in range(self.config.num_classes - 1):  # Loop over all classes minus background
-            ce_loss += CE_Loss(pred[c][-1][3], data['y_voxels'])
+        ce_loss = CE_Loss(pred[0][-1][3], data['y_voxels'])
 
         chamfer_loss = torch.tensor(0).float().cuda()
         edge_loss = torch.tensor(0).float().cuda()
@@ -225,3 +220,8 @@ class Voxel2Mesh(nn.Module):
                "edge_loss": edge_loss.detach(),
                "laplacian_loss": laplacian_loss.detach()}
         return loss, log
+
+
+
+
+

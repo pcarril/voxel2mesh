@@ -16,7 +16,7 @@ def load_config(exp_id):
     cfg.experiment_idx = exp_id 
     cfg.trial_id = None
     
-    cfg.save_dir_prefix = 'MRI_' # prefix for experiment folder
+    cfg.save_dir_prefix = 'LV_' # prefix for experiment folder
     cfg.name = 'voxel2mesh'
 
     ''' 
@@ -25,7 +25,7 @@ def load_config(exp_id):
     dataset_path: dataset must be stored here.
     '''
     cfg.save_path = r"C:\Users\pcarril\PycharmProjects\voxel2mesh_"
-    cfg.dataset_path = r"C:\Users\pcarril\PycharmProjects\Datasets\MF05"
+    cfg.dataset_path = r"C:\Users\pcarril\PycharmProjects\voxel2mesh\MF05"
     
     # cfg.save_path = '/your/path/to/experiments/miccai2020/' # results will be saved here
     # cfg.dataset_path = '/your/path/to/dataset' # path to the dataset
@@ -65,7 +65,7 @@ def load_config(exp_id):
     # Only supports batch size 1 at the moment. 
     cfg.batch_size = 1 
 
-    cfg.num_classes = 9  # 7 labels + 1 for background // Pedro changed this to make network multi-class
+    cfg.num_classes = 2  # 8 labels + 1 for background // Pedro changed this to make network multi-class
     cfg.batch_norm = True  
     cfg.graph_conv_layer_count = 4
 

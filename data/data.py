@@ -160,7 +160,7 @@ def sample_to_sample_plus(samples, cfg, datamode):
         x = sample.x
         y = sample.y 
 
-        y = y.long()
+        y = (y>0).long()
 
         center = tuple([d // 2 for d in x.shape]) 
         x = crop(x, cfg.patch_shape, center) 

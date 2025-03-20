@@ -93,6 +93,7 @@ class Hippocampus(DatasetAndSupport):
             if '.npy' in sample and '._' not in sample:
 
                 x, y = self.read_sample(data_root, sample, down_sample_shape, largest_image_size)
+                y_temp = y.cpu().numpy()
                 inputs += [x.cpu()]
                 labels += [y.cpu()]
 
