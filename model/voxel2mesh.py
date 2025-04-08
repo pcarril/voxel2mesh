@@ -17,6 +17,7 @@ from utils.utils_common import crop_and_merge
 from utils.utils_voxel2mesh.graph_conv import adjacency_matrix, Features2Features, Feature2VertexLayer
 from utils.utils_voxel2mesh.feature_sampling import LearntNeighbourhoodSampling
 from utils.utils_voxel2mesh.file_handle import read_obj
+import matplotlib.pyplot as plt
 
 from utils.utils_voxel2mesh.unpooling import uniform_unpool, adoptive_unpool
 
@@ -128,8 +129,7 @@ class Voxel2Mesh(nn.Module):
             x = unet_layer(x)
             down_outputs.append(x)
 
-        A, D = adjacency_matrix(vertices, faces)
-        pred = [None] * self.config.num_classes
+        pred = [None] * (self.config.num_classes - 1)
         for k in range(self.config.num_classes - 1):
             pred[k] = [[vertices.clone(), faces.clone(), None, None, sphere_vertices.clone()]]
 
@@ -193,7 +193,8 @@ class Voxel2Mesh(nn.Module):
         # embed()
 
         CE_Loss = nn.CrossEntropyLoss()
-        ce_loss = CE_Loss(pred[0][-1][3], data['y_voxels'])
+        voxel_pred = pred[-1][-1][3]
+        ce_loss = CE_Loss(voxel_pred, data['y_voxels'])
 
         chamfer_loss = torch.tensor(0).float().cuda()
         edge_loss = torch.tensor(0).float().cuda()
@@ -220,7 +221,6 @@ class Voxel2Mesh(nn.Module):
                "edge_loss": edge_loss.detach(),
                "laplacian_loss": laplacian_loss.detach()}
         return loss, log
-
 
 
 

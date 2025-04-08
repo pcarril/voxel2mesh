@@ -16,7 +16,7 @@ def load_config(exp_id):
     cfg.experiment_idx = exp_id 
     cfg.trial_id = None
     
-    cfg.save_dir_prefix = 'LV_' # prefix for experiment folder
+    cfg.save_dir_prefix = 'LVLM_' # prefix for experiment folder
     cfg.name = 'voxel2mesh'
 
     ''' 
@@ -58,14 +58,14 @@ def load_config(exp_id):
     cfg.augmentation_shift_range = 10
 
     ''' Model '''
-    cfg.first_layer_channels = 16
+    cfg.first_layer_channels = 32
     cfg.num_input_channels = 1
     cfg.steps = 4
 
     # Only supports batch size 1 at the moment. 
     cfg.batch_size = 1 
 
-    cfg.num_classes = 2  # 8 labels + 1 for background // Pedro changed this to make network multi-class
+    cfg.num_classes = 3  # Pedro: num of labels + background - editing this to change network to be multiclass
     cfg.batch_norm = True  
     cfg.graph_conv_layer_count = 4
 

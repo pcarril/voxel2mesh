@@ -86,21 +86,21 @@ def main():
     print("Initialize trainer")
     trainer = Trainer(classifier, loader, optimizer, cfg.numb_of_itrs, cfg.eval_every, trial_path, evaluator)
 
-    # if cfg.trial_id is not None:
-    print("Loading pretrained network")
-    trial_path = 'C:\\Users\pcarril\\PycharmProjects\\voxel2mesh_LV_003\\trial_1'
-    save_path = trial_path + '/best_performance3/model.pth'
-    checkpoint = torch.load(save_path)
-    classifier.load_state_dict(checkpoint['model_state_dict'])
-    optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
-    epoch = checkpoint['epoch']
-    # else:
-    #    epoch = 0
+    if cfg.trial_id is not None:
+        print("Loading pretrained network")
+        trial_path = 'C:\\Users\pcarril\\PycharmProjects\\voxel2mesh_LV_003\\trial_1'
+        save_path = trial_path + '/best_performance3/model.pth'
+        checkpoint = torch.load(save_path)
+        classifier.load_state_dict(checkpoint['model_state_dict'])
+        optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+        epoch = checkpoint['epoch']
+    else:
+        epoch = 0
 
-    # trainer.train(start_iteration=epoch)
+    trainer.train(start_iteration=epoch)
 
     # To evaluate a pretrained model, uncomment line below and comment the line above
-    evaluator.evaluate(epoch)
+    # evaluator.evaluate(epoch)
 
 if __name__ == "__main__": 
     main()

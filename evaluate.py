@@ -124,7 +124,7 @@ class Evaluator(object):
 
             x = x.detach().data.cpu()  
             y = Structure(mesh=true_meshes, voxel=true_voxels, points=true_points)
-            y_hat = Structure(mesh=pred_meshes, voxel=pred_voxels_rasterized)
+            y_hat = Structure(mesh=pred_meshes, voxel=pred_voxels)
  
 
         x = (x - torch.min(x)) / (torch.max(x) - torch.min(x))

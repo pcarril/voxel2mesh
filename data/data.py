@@ -43,7 +43,7 @@ class DatasetAndSupport(object):
 def get_item(item, mode, config):
     x = item.x.cuda()[None]
     y = item.y.cuda()
-    y_temp = y.cpu().numpy()
+    y_temp = y.cpu().numpy() # Pedro: for debugging to visualize if labels are getting loaded properly
     y_outer = item.y_outer.cuda()
     shape = item.shape
 
@@ -160,7 +160,7 @@ def sample_to_sample_plus(samples, cfg, datamode):
         x = sample.x
         y = sample.y 
 
-        y = (y>0).long()
+        y = (y).long()
 
         center = tuple([d // 2 for d in x.shape]) 
         x = crop(x, cfg.patch_shape, center) 
